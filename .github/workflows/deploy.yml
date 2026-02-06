@@ -89,12 +89,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      # Debug: Vérifier que les secrets existent
+      - name: Check AWS credentials
+        run: |
+          if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
+            echo "❌ AWS_ACCESS_KEY_ID n'est pas configuré"
+            exit 1
+          fi
+          if [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
+            echo "❌ AWS_SECRET_ACCESS_KEY n'est pas configuré"
+            exit 1
+          fi
+          echo "✅ Secrets AWS détectés"
+      
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-3
+      
+      # Debug: Vérifier que les credentials sont chargés
+      - name: Verify AWS credentials
+        run: |
+          aws sts get-caller-identity
+          echo "✅ AWS credentials OK"
       
       - uses: hashicorp/setup-terraform@v3
         with:
