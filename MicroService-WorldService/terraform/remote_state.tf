@@ -3,7 +3,7 @@ data "terraform_remote_state" "root" {
   backend = "s3"
 
   config = {
-    bucket         = "terraform-state"
+    bucket         = "terraform-state-files-197686806566"
     key            = "dev/infrastructure/terraform.tfstate"
     region         = var.region
     encrypt        = true
