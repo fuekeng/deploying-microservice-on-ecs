@@ -1,6 +1,6 @@
 name: "Hello Service Build and Terraform Deployment"
+
 on:
-  # Manual trigger
   workflow_dispatch:
   push:
     branches:
@@ -8,48 +8,58 @@ on:
     paths:
       - 'MicroService-HelloService/**'
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
       - 'MicroService-HelloService/**'
+
 jobs:
   build:
-     defaults:
-       run:
-         working-directory: ./MicroService-HelloService
-     name: Maven Build
-     runs-on: [ ubuntu-latest ]
-     steps:
-      - uses: actions/checkout@v2
+    defaults:
+      run:
+        working-directory: ./MicroService-HelloService
+    name: Maven Build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
       - name: Set up JDK 11
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: '11'
           distribution: 'adopt'
+      
       - name: Build with Maven
         run: mvn package
+      
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app.jar
           path: MicroService-HelloService/target/helloservice-1.jar
+      
+      # ✅ Configurer AWS credentials AVANT login ECR
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-3 
-
-      - name: Login to Public ECR
-        uses: docker/login-action@v1
+          aws-region: us-east-1  # ⚠️ ECR Public nécessite us-east-1
+      
+      # ✅ Login à ECR Public avec les bonnes credentials
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v2
         with:
-         registry: public.ecr.aws
-
+          registry-type: public
+      
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
-            name: app.jar
-
-      - name: Build, tag, and push image to Amazon ECR
+          name: app.jar
+          path: .
+      
+      - name: Build, tag, and push image to Amazon ECR Public
         id: build-image
         env:
           ECR_REGISTRY: public.ecr.aws/d0p8w4f7
@@ -58,11 +68,12 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
   terraform:
     needs: build
-    name:  ${{ matrix.environment }}
-    runs-on: [ ubuntu-latest ]
+    name: ${{ matrix.environment }}
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: MicroService-HelloService/terraform
@@ -70,34 +81,38 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-            - environment: dev
+          - environment: dev
+    
     env:
-      aws_secret_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       TF_VAR_container_version: ${{ github.sha }}
+    
     steps:
-    - uses: actions/checkout@v3
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-west-3
-    - uses: hashicorp/setup-terraform@v1
-      with:
+      - uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-3
+      
+      - uses: hashicorp/setup-terraform@v3
+        with:
           terraform_wrapper: false
-    - name: Terraform Init
-      id: init
-      run: |
-        rm -rf .terraform
-        terraform init -backend-config=${{ matrix.environment }}/backend.tfvars -upgrade=true -no-color -input=false
-    - name: Terraform Plan
-      id: plan
-      run: |
-        terraform plan -var-file=${{ matrix.environment }}/terraform.tfvars -no-color
-    - name: Terraform apply
-      if: github.ref == 'refs/heads/main'
-      id: apply
-      run: |
-        terraform apply -var-file=${{ matrix.environment }}/terraform.tfvars -no-color --auto-approve=true
- 
+      
+      - name: Terraform Init
+        id: init
+        run: |
+          rm -rf .terraform
+          terraform init -backend-config=${{ matrix.environment }}/backend.tfvars -upgrade=true -no-color -input=false
+      
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform plan -var-file=${{ matrix.environment }}/terraform.tfvars -no-color
+      
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        id: apply
+        run: |
+          terraform apply -var-file=${{ matrix.environment }}/terraform.tfvars -no-color -auto-approve
