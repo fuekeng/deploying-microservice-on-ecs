@@ -38,6 +38,19 @@ jobs:
           name: app.jar
           path: MicroService-HelloService/target/helloservice-1.jar
       
+      # Debug: Vérifier que les secrets existent
+      - name: Check AWS credentials
+        run: |
+          if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
+            echo "❌ AWS_ACCESS_KEY_ID n'est pas configuré"
+            exit 1
+          fi
+          if [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
+            echo "❌ AWS_SECRET_ACCESS_KEY n'est pas configuré"
+            exit 1
+          fi
+          echo "✅ Secrets AWS détectés"
+      
       # ✅ Configurer AWS credentials AVANT login ECR
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -52,6 +65,12 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
         with:
           registry-type: public
+      
+      # Debug: Vérifier que les credentials fonctionnent
+      - name: Verify AWS credentials
+        run: |
+          aws sts get-caller-identity
+          echo "✅ AWS credentials OK"
       
       - name: Download Artifact
         uses: actions/download-artifact@v4
