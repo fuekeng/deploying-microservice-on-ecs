@@ -9,7 +9,7 @@ public class HelloController {
     @GetMapping("/hello")
     public String getHello() {
 
-        return "Hello from hello Service billy blondeau\n";
+        return "Hello from hello Service billy \n";
 
     }
 
