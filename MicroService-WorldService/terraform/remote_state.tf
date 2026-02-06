@@ -7,7 +7,7 @@ data "terraform_remote_state" "root" {
     key            = "dev/infrastructure/terraform.tfstate"
     region         = var.region
     encrypt        = true
-    dynamodb_table = "terraform-locks"
+    use_lockfile   = true
   }
 }
 
