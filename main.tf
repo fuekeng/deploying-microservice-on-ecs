@@ -1,10 +1,9 @@
+# Import modules
 module "vpc" {
   source = "./modules/vpc"
 
-  vpc_cidr           = var.vpc_cidr
-  environment        = var.environment
-  enable_nat_gateway = var.enable_nat_gateway
-  single_nat_gateway = var.single_nat_gateway
+  vpc_cidr    = var.vpc_cidr
+  environment = var.environment
 }
 
 module "ecr" {
@@ -17,8 +16,8 @@ module "ecr" {
 module "ecs_cluster" {
   source = "./modules/ecs-cluster"
 
-  environment              = var.environment
-  enable_container_insights = var.enable_container_insights
+  environment                = var.environment
+  enable_container_insights  = var.enable_container_insights
 }
 
 # CloudMap Namespace for service discovery

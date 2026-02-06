@@ -1,0 +1,1 @@
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"ecr","Source":"./modules/ecr","Dir":""},{"Key":"ecs_cluster","Source":"./modules/ecs-cluster","Dir":""},{"Key":"vpc","Source":"./modules/vpc","Dir":""}]}
