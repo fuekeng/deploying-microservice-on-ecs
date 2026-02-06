@@ -2,19 +2,6 @@ name: "Hello Service Build and Terraform Deployment"
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - 'MicroService-HelloService/**'
-      - '*.tf'
-      - 'dev/terraform.tfvars'
-      - 'dev/backend.tfvars'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'MicroService-HelloService/**'
-      - '*.tf'
 
 jobs:
   build:
