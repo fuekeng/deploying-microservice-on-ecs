@@ -7,10 +7,14 @@ on:
       - main
     paths:
       - 'MicroService-HelloService/**'
+      - '*.tf'
+      - 'dev/terraform.tfvars'
+      - 'dev/backend.tfvars'
   pull_request:
     branches: [main]
     paths:
       - 'MicroService-HelloService/**'
+      - '*.tf'
 
 jobs:
   build:
