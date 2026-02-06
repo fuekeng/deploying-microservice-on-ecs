@@ -1,3 +1,3 @@
 region = "us-east-1"
-bucket = "devops4solutions-terraform"
+bucket = "terraform-state-files-197686806566"
 key    = "dev/clientsvc.tfstate"
