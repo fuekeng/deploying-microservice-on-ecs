@@ -1,6 +1,6 @@
 module "ecs-fargate-service" {
   source              = "../../modules/ecs-fargate-service"
-  vpc_id              = var.vpc_id
+  vpc_id              = local.vpc_id
   application         = var.application
   region              = var.region
   ecs_cluster         = "${var.environment}-cluster"
@@ -11,7 +11,7 @@ module "ecs-fargate-service" {
   ecr_repository_name = "public.ecr.aws/d0p8w4f7/hello-svc"
   port                = 80
   health_check_path   = "/hello"
-  cloudmap_namespace  =  var.cloudmap_namespace
+  cloudmap_namespace  = local.cloudmap_namespace
   cpu                 = "512"
   memory              = "1024"
   path_pattern        = "/hello"
