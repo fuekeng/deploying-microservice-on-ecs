@@ -1,4 +1,4 @@
-FROM openjdk:11
+FROM eclipse-temurin:11-jre
 VOLUME /tmp
 EXPOSE 80
 ADD target/*.jar app.jar
