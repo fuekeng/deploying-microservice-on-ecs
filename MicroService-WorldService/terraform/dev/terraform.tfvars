@@ -1,3 +1,3 @@
 environment = "dev"
-vpc_id      = "vpc-01597c908ca522729"
+vpc_id      = "vpc-0c52b06ef44bd4f5c"
 cloudmap_namespace = "corp"
