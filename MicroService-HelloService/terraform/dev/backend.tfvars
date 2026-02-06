@@ -1,3 +1,3 @@
 region = "us-east-1"
-bucket = "devops4solutions-terraform"
-key    = "dev/hellosvc.tfstate"
+bucket = "terraform-state"
+key    = "dev/hello-service/terraform.tfstate"
