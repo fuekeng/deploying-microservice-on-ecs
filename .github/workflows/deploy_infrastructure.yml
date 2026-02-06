@@ -30,7 +30,7 @@ jobs:
       - name: Terraform Init
         id: init
         run: |
-          terraform init -backend-config=dev/backend.tfvars -upgrade=true -no-color -input=false
+          terraform init -backend-config=dev/backend.tfvars -reconfigure -no-color -input=false
       
       - name: Terraform Plan
         id: plan
