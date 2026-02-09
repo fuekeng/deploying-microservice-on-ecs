@@ -18,20 +18,17 @@ jobs:
       run:
         working-directory: ./MicroService-HelloService
     name: Maven Build
-    runs-on: ubuntu-latest
+    runs-on: [ ubuntu-latest ]
     
     steps:
-      - uses: actions/checkout@v4
-      
+      - uses: actions/checkout@v2
       - name: Set up JDK 11
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v2
         with:
           java-version: '11'
           distribution: 'adopt'
-      
       - name: Build with Maven
         run: mvn package
-      
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -47,11 +44,10 @@ jobs:
           aws-region: us-east-1  # ⚠️ ECR Public nécessite us-east-1
       
       # ✅ Login à ECR Public avec les bonnes credentials
-      - name: Login to Amazon ECR Public
-        id: login-ecr-public
-        uses: aws-actions/amazon-ecr-login@v2
+      - name: Login to Public ECR
+        uses: docker/login-action@v1
         with:
-          registry-type: public
+         registry: public.ecr.aws
       
       - name: Download Artifact
         uses: actions/download-artifact@v4
