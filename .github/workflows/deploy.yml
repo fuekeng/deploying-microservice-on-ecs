@@ -70,7 +70,7 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-  terraform:
+  # terraform:
     needs: build
     name: ${{ matrix.environment }}
     runs-on: ubuntu-latest
